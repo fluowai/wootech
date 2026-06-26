@@ -1,0 +1,132 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  role          String    @default("OPERATOR")
+  createdAt     DateTime  @default(now())
+}
+
+model System {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  apiKey    String   @unique
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  clients   Client[]
+  agents    Agent[]
+}
+
+model Plan {
+  id               String   @id @default(uuid())
+  name             String
+  monthlyPrice     Float
+  includedMessages Int
+  includedTokens   Int
+  includedCredits  Int
+  overagePrice     Float
+  status           String   @default("active")
+  clients          Client[]
+}
+
+model Client {
+  id             String             @id @default(uuid())
+  systemId       String
+  system         System             @relation(fields: [systemId], references: [id])
+  name           String
+  document       String?
+  email          String
+  phone          String?
+  status         String             @default("active")
+  planId         String?
+  plan           Plan?              @relation(fields: [planId], references: [id])
+  creditBalance  Float              @default(0)
+  createdAt      DateTime           @default(now())
+  knowledgeBases KnowledgeBase[]
+  usageLogs      UsageLog[]
+  conversations  ConversationLog[]
+}
+
+model Agent {
+  id              String            @id @default(uuid())
+  systemId        String
+  system          System            @relation(fields: [systemId], references: [id])
+  name            String
+  slug            String            @unique
+  description     String?
+  systemPrompt    String            @db.Text
+  modelPreference String
+  temperature     Float             @default(0.7)
+  maxTokens       Int               @default(1000)
+  toolsEnabled    Boolean           @default(false)
+  status          String            @default("active")
+  usageLogs       UsageLog[]
+  conversations   ConversationLog[]
+}
+
+model KnowledgeBase {
+  id          String     @id @default(uuid())
+  clientId    String
+  client      Client     @relation(fields: [clientId], references: [id])
+  systemId    String
+  name        String
+  description String?
+  status      String     @default("active")
+  documents   Document[]
+}
+
+model Document {
+  id              String        @id @default(uuid())
+  knowledgeBaseId String
+  knowledgeBase   KnowledgeBase @relation(fields: [knowledgeBaseId], references: [id])
+  fileName        String
+  fileType        String
+  storageUrl      String
+  status          String        @default("processing")
+  createdAt       DateTime      @default(now())
+}
+
+model UsageLog {
+  id               String   @id @default(uuid())
+  clientId         String
+  client           Client   @relation(fields: [clientId], references: [id])
+  systemId         String
+  agentId          String
+  agent            Agent    @relation(fields: [agentId], references: [id])
+  modelUsed        String
+  providerUsed     String
+  promptTokens     Int
+  completionTokens Int
+  totalTokens      Int
+  creditsUsed      Float
+  costInternal     Float?
+  priceCharged     Float?
+  latencyMs        Int
+  createdAt        DateTime @default(now())
+}
+
+model ConversationLog {
+  id           String   @id @default(uuid())
+  clientId     String
+  client       Client   @relation(fields: [clientId], references: [id])
+  systemId     String
+  userId       String
+  channel      String
+  inputMessage String   @db.Text
+  outputMessage String  @db.Text
+  agentId      String
+  agent        Agent    @relation(fields: [agentId], references: [id])
+  createdAt    DateTime @default(now())
+}

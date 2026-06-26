@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --color-primary: #6366f1;
+  --color-secondary: #f43f5e;
+  --color-accent: #10b981;
+  --color-bg-light: #f8fafc;
+}
+
+body {
+  @apply font-sans text-slate-800 antialiased bg-white;
+}
+
+/* Custom Scrollbar for clean look */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 rounded-full;
+}

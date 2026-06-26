@@ -1,0 +1,6 @@
+{
+  "name": "MEXUS AI ADMIN",
+  "description": "Central de Inteligência Artificial auto-hospedada para gestão de LLMs, agentes multi-tenant, RAG e faturamento de tokens.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
